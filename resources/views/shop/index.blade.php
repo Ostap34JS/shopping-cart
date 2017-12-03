@@ -21,7 +21,7 @@
                             <p class="card-text">{{ str_limit($product->description,140)}}</p>
                         </div>
                         <div class="card-footer">
-                            <a href="" class="btn btn-success btn-block">Add to cart</a>
+                            <a href="{{route('product.addToCart', ['id' => $product->id])}}" class="btn btn-success btn-block">Add to cart</a>
                         </div>
                     </div>
                 </div>
