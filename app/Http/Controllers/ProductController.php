@@ -14,6 +14,11 @@ class ProductController extends Controller
         return view('shop.index', ['products' => $products]);
     }
 
+    public function show($id){
+        $product = Product::find($id);
+        return view('shop.single-product', ['product' => $product]);
+    }
+
     public function getAddToCart(Request $request,$id){
         $product = Product::find($id);
         $old_cart = Session::has('cart') ? Session::get('cart') : null;
@@ -22,7 +27,27 @@ class ProductController extends Controller
 
         $request->session()->put('cart',$cart);
 
-        return redirect()->route('product.index');
+        return redirect()->back();
+    }
+
+    public function deleteFromCart(Request $request, $id){
+        $product = Product::find($id);
+        $cartProducts = Session::has('cart') ? Session::get('cart') : null;
+        $cart = new Cart($cartProducts);
+        foreach ($cart->items as $productFromCart) {
+            if ($productFromCart['item']['id'] == $id) {
+                $request->session()->forget('cart');
+                unset($cart->items[$id]);
+                $cart->totalQty -= $productFromCart['qty'];
+                $cart->totalPrice -= $product->price;
+            }
+        }
+        if ($cart->totalQty == 0) {
+          $request->session()->forget('cart');
+        } else {
+          $request->session()->put('cart', $cart);
+        }
+        return redirect()->back();
     }
 
     public function getCart(){
@@ -32,6 +57,6 @@ class ProductController extends Controller
 
         $oldCart = Session::get('cart');
         $cart    = new Cart($oldCart);
-        return view('shop.shopping-cart', ['products' => $cart->items, 'totalPrice' => $cart->totalPrice]);
+        return view('shop.shopping-cart', ['cart' => $oldCart, 'products' => $cart->items, 'totalPrice' => $cart->totalPrice]);
     }
 }
