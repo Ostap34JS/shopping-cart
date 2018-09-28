@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\User;
 use Illuminate\Http\Request;
 use Auth;
+use Session;
+use App\Cart;
 
 class UserController extends Controller
 {
@@ -47,7 +49,9 @@ class UserController extends Controller
     }
 
     public function getProfile(){
-        return view('user.profile');
+        $oldCart = Session::get('cart');
+        $cart    = new Cart($oldCart);
+        return view('user.profile', ['cart' => $oldCart, 'products' => $cart->items, 'totalPrice' => $cart->totalPrice]);
     }
 
     public function getLogout(){
